@@ -1,0 +1,51 @@
+#!/bin/bash
+
+echo "Please select an option:"
+echo "1. Create a user"
+echo "2. Create a group"
+echo "3. Add a user to a group"
+echo "4. Modify a user's group"
+echo "5. Delete a user"
+echo "6. Delete a group"
+
+read -p "Enter your choice [1-6]: " choice
+
+case $choice in
+ 1)
+   read -p "Enter the username: " username
+   useradd -m -s /bin/bash $username
+   read -p "Enter a password for $username: " password
+   echo "$username:$password" | chpasswd
+   echo "User $username created successfully."
+ ;;
+ 2)
+   read -p "Enter the group name: " groupname
+   groupadd $groupname
+   echo "Group $groupname created successfully."
+ ;;
+ 3)
+   read -p "Enter the username: " username
+   read -p "Enter the group name: " groupname
+   usermod -aG $groupname $username
+   echo "User $username added to group $groupname."
+ ;;
+ 4)
+   read -p "Enter the username: " username
+   read -p "Enter the new group name: " newgroup
+   usermod -g $newgroup $username
+   echo "User $username is now part of group $newgroup."
+ ;;
+ 5)
+   read -p "Enter the username to delete: " username
+   userdel -r $username
+   echo "User $username deleted successfully."
+ ;;
+ 6)
+   read -p "Enter the group name to delete: " groupname
+   groupdel $groupname
+   echo "Group $groupname deleted successfully."
+ ;;
+ *)
+   echo "Invalid option, please run the script again."
+ ;;
+esac
