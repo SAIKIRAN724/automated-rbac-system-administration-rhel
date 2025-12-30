@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Check if at least one group name is provided as an argument
+if [ "$#" -lt 1 ]; then
+ echo "Usage: $0 group1 [group2 ... groupN]"
+ exit 1
+fi
+
+# Function to add group to sudoers if it doesn't exist
+add_group_to_sudoers() {
+ GROUP=$1
+
+ # Check if the group exists; if not, create it
+ if ! getent group "$GROUP" > /dev/null; then
+   echo "Group $GROUP does not exist. Creating group..."
+   sudo groupadd "$GROUP"
+   echo "Group $GROUP has been created."
+ fi
+
+ # Check if the group is already in the sudoers file
+ if ! sudo grep -q "^%$GROUP ALL=(ALL) ALL" /etc/sudoers; then
+   echo "Adding group $GROUP to sudoers file..."
+   echo "%$GROUP ALL=(ALL) ALL" | sudo tee -a /etc/sudoers > /dev/null
+   echo "Group $GROUP has been added to the sudoers file with full sudo privileges."
+ else
+   echo "Group $GROUP already has sudo privileges."
+ fi
+}
+
+# Loop through all group names provided as arguments
+for GROUP in "$@"
+do
+ add_group_to_sudoers "$GROUP"
+done
+
+echo "All specified groups have been processed."
